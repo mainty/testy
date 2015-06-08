@@ -1,0 +1,67 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>JSONP</title>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript">
+<!--
+$(function() {
+	$('#disp').click(addItems);
+	$('#keyword').keypress(function ( e ) {
+				if ( e.which == 13 ) {
+					addItems();
+					return false;
+				}
+			});
+
+	var itemPage = 1;
+
+	function addItems(){
+		$.getJSON(
+			'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20140222?callback=?',
+			{ keyword: $('#keyword').val(), applicationId: '1002891402974278588', page: itemPage},
+			function(data) {
+				$('#count').html(data.count);
+				
+				//console.log(data.Items[0].Item.itemName);
+
+				for (var i = 0; i < data.Items.length; i++) {
+					var it = data.Items[i].Item;
+
+					if(it.imageFlag){
+						$('#result').append(
+							$('<a></a>')
+								.attr('href', it.itemUrl)
+								.html($('<img></img>')
+									.attr('src', it.mediumImageUrls[0].imageUrl)
+								)
+						);
+					}
+				}
+
+				itemPage++;
+				if(itemPage < data.pageCount){
+					setTimeout(addItems,'1000');
+				}
+				
+			}
+		);		
+	}
+
+});
+//-->
+</script>
+</head>
+<body>
+<form name="fm">
+<label>商品名：
+	<input type="text" id="keyword" name="keyword" size="50"
+		value="フライパン" /></label>
+<input type="button" id="disp" value="検索" />
+</form>
+<hr />
+<span id="count">-</span>件見つかりました。
+<span id="test">-</span>
+<ul id="result"></ul>
+</body>
+</html>
